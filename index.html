@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For Sam Sam ❤️</title>
+
+<style>
+body {
+    margin: 0;
+    overflow: hidden;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #ff9ecf, #ffcce6);
+    text-align: center;
+    color: white;
+}
+
+/* Floating hearts */
+.heart {
+    position: absolute;
+    color: rgba(255,255,255,0.8);
+    font-size: 20px;
+    animation: floatUp linear infinite;
+}
+
+@keyframes floatUp {
+    from { transform: translateY(100vh) scale(1); opacity:1; }
+    to { transform: translateY(-10vh) scale(1.5); opacity:0; }
+}
+
+/* Main content */
+.container {
+    position: relative;
+    z-index: 2;
+    margin-top: 25vh;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 24px;
+}
+
+.name {
+    font-size: 28px;
+    font-weight: bold;
+    animation: glow 1.5s infinite alternate;
+}
+
+@keyframes glow {
+    from { text-shadow: 0 0 10px #fff; }
+    to { text-shadow: 0 0 20px #ff4da6, 0 0 30px #ff1a75; }
+}
+
+button {
+    padding: 12px 25px;
+    font-size: 18px;
+    margin: 10px;
+    border-radius: 30px;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+#yesBtn {
+    background-color: #ff1a75;
+    color: white;
+}
+
+#noBtn {
+    background-color: #666;
+    color: white;
+    position: absolute;
+}
+
+/* Letter/Envelope */
+#letter {
+    display: none;
+    margin: 30px auto 0;
+    width: 80px;
+    height: 60px;
+    cursor: pointer;
+    position: relative;
+    perspective: 400px;
+}
+
+.envelope {
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    border-radius: 5px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform-origin: top center;
+    transition: transform 1s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+}
+
+.envelope.open {
+    transform: rotateX(-180deg);
+}
+
+/* Note */
+#note {
+    display: none;
+    background: white;
+    color: #333;
+    margin: 20px auto;
+    padding: 20px;
+    border-radius: 20px;
+    width: 85%;
+    max-width: 320px;
+    animation: fadeIn 1s ease forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* Confetti */
+canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 5;
+}
+</style>
+</head>
+<body>
+
+<canvas id="confetti"></canvas>
+
+<div class="container">
+    <h1>Will you be my Valentine</h1>
+    <div class="name">Sam Sam? 💖</div>
+
+    <button id="yesBtn">Yes 💘</button>
+    <button id="noBtn">No 🙈</button>
+
+    <div id="letter">
+        <div class="envelope">💌</div>
+    </div>
+
+    <div id="note">
+        I'm sorry I couldn't be here today,<br><br>
+        but I still wanted to make something special for you ❤️<br><br>
+        You mean more to me than words can explain.
+    </div>
+</div>
+
+<script>
+// Buttons
+const noBtn = document.getElementById("noBtn");
+const yesBtn = document.getElementById("yesBtn");
+const letter = document.getElementById("letter");
+const envelope = document.querySelector(".envelope");
+const note = document.getElementById("note");
+
+// Move No button
+function moveButton() {
+    const maxX = window.innerWidth - noBtn.offsetWidth;
+    const maxY = window.innerHeight - noBtn.offsetHeight;
+    const x = Math.random() * maxX;
+    const y = Math.random() * maxY;
+    noBtn.style.left = x + "px";
+    noBtn.style.top = y + "px";
+}
+noBtn.addEventListener("touchstart", moveButton);
+noBtn.addEventListener("mouseover", moveButton);
+
+// Yes clicked
+yesBtn.addEventListener("click", () => {
+    letter.style.display = "block";
+    launchConfetti(); // Confetti explosion
+});
+
+// Envelope clicked -> animate open then show note
+envelope.addEventListener("click", () => {
+    envelope.classList.add("open");
+    setTimeout(() => {
+        note.style.display = "block";
+    }, 1000);
+});
+
+// Floating hearts
+function createHeart() {
+    const heart = document.createElement("div");
+    heart.classList.add("heart");
+    heart.innerHTML = "💖";
+    heart.style.left = Math.random() * 100 + "vw";
+    heart.style.animationDuration = (3 + Math.random() * 5) + "s";
+    heart.style.fontSize = (15 + Math.random() * 25) + "px";
+    document.body.appendChild(heart);
+    setTimeout(() => heart.remove(), 8000);
+}
+setInterval(createHeart, 300);
+
+// Confetti
+const canvas = document.getElementById("confetti");
+const ctx = canvas.getContext("2d");
+let confettiParticles = [];
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+function ConfettiParticle() {
+    this.x = Math.random() * canvas.width;
+    this.y = Math.random() * canvas.height - canvas.height;
+    this.r = Math.random() * 6 + 4;
+    this.d = Math.random() * 30;
+    this.color = `hsl(${Math.random() * 360}, 100%, 50%)`;
+    this.tilt = Math.random() * 10 - 10;
+    this.tiltAngleIncrement = Math.random() * 0.07 + 0.05;
+    this.tiltAngle = 0;
+}
+
+ConfettiParticle.prototype.update = function() {
+    this.tiltAngle += this.tiltAngleIncrement;
+    this.y += (Math.cos(this.d) + 3 + this.r/2)/2;
+    this.x += Math.sin(this.d);
+    this.tilt = Math.sin(this.tiltAngle) * 15;
+    if(this.y > canvas.height) {
+        this.y = -10;
+        this.x = Math.random() * canvas.width;
+    }
+}
+
+ConfettiParticle.prototype.draw = function() {
+    ctx.beginPath();
+    ctx.lineWidth = this.r/2;
+    ctx.strokeStyle = this.color;
+    ctx.moveTo(this.x + this.tilt + this.r/4, this.y);
+    ctx.lineTo(this.x + this.tilt, this.y + this.tilt + this.r/4);
+    ctx.stroke();
+}
+
+function launchConfetti() {
+    confettiParticles = [];
+    for(let i=0; i<150; i++) {
+        confettiParticles.push(new ConfettiParticle());
+    }
+    requestAnimationFrame(updateConfetti);
+}
+
+function updateConfetti() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    confettiParticles.forEach(p => {
+        p.update();
+        p.draw();
+    });
+    if(confettiParticles.length > 0) {
+        requestAnimationFrame(updateConfetti);
+    }
+}
+</script>
+
+</body>
+</html>
